@@ -26,8 +26,9 @@ app.get('/transcript', (req, res) => {
 import json, sys
 try:
     from youtube_transcript_api import YouTubeTranscriptApi
-    t = YouTubeTranscriptApi.get_transcript('${videoId}', languages=['tr','en'])
-    print(json.dumps({'transcript': ' '.join([x['text'] for x in t]), 'videoId': '${videoId}'}))
+    api = YouTubeTranscriptApi()
+    t = api.fetch('${videoId}')
+    print(json.dumps({'transcript': ' '.join([x.text for x in t]), 'videoId': '${videoId}'}))
 except Exception as e:
     print(json.dumps({'error': str(e)}))
 `;
