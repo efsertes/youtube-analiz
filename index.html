@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube İçerik Analizi</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; padding: 24px; max-width: 900px; margin: 0 auto; }
+  .kart { background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px; border: 1px solid #e5e5e5; }
+  h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .alt { font-size: 13px; color: #888; margin-bottom: 24px; }
+  label { font-size: 13px; color: #555; display: block; margin-bottom: 6px; font-weight: 500; }
+  input, select, textarea { width: 100%; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; margin-bottom: 12px; }
+  textarea { resize: vertical; min-height: 120px; }
+  .btn { border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .btn-mavi { background: #0066cc; color: white; }
+  .btn-mavi:hover { background: #0055aa; }
+  .btn-yesil { background: #28a745; color: white; }
+  .btn-yesil:hover { background: #218838; }
+  .btn-mor { background: #6f42c1; color: white; width: 100%; padding: 12px; font-size: 15px; }
+  .btn-mor:hover { background: #5a2da5; }
+  .btn-kucuk { padding: 6px 12px; font-size: 12px; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .durum { font-size: 13px; padding: 8px 0; display: none; }
+  .hata { color: #cc0000; }
+  .bilgi { color: #555; }
+  .basari { color: #28a745; }
+  .sekme { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid #e5e5e5; padding-bottom: 12px; }
+  .sekme-btn { padding: 8px 16px; border: 1px solid #ddd; background: white; border-radius: 8px; cursor: pointer; font-size: 14px; }
+  .sekme-btn.aktif { background: #0066cc; color: white; border-color: #0066cc; }
+  .panel { display: none; }
+  .panel.aktif { display: block; }
+  .analiz-kutu { background: #f0f7ff; border: 1px solid #c0d8f0; border-radius: 10px; padding: 20px; white-space: pre-wrap; font-size: 14px; line-height: 1.75; margin-top: 16px; display: none; }
+  .ipucu { background: #fff8e1; border: 1px solid #ffc107; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #555; margin-bottom: 16px; line-height: 1.6; }
+  .ipucu strong { color: #333; }
+  .video-item { background: #fafafa; border: 1px solid #e5e5e5; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; }
+  .video-baslik { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+  .video-alt { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .video-tarih { font-size: 12px; color: #888; }
+  .kanal-ekle { display: flex; gap: 8px; margin-bottom: 12px; }
+  .kanal-ekle input { margin-bottom: 0; }
+  .kanal-tag { display: inline-flex; align-items: center; gap: 6px; background: #e8f0fe; color: #1a56db; padding: 4px 10px; border-radius: 20px; font-size: 13px; margin: 3px; }
+  .kanal-sil { cursor: pointer; font-size: 16px; line-height: 1; color: #666; }
+  .kanal-listesi { margin-bottom: 16px; min-height: 32px; }
+  .adim { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #0066cc; color: white; border-radius: 50%; font-size: 12px; font-weight: 600; margin-right: 6px; flex-shrink: 0; }
+  .adim-satir { display: flex; align-items: flex-start; margin-bottom: 8px; font-size: 13px; color: #444; }
+  .kopyala-btn { background: #f0f0f0; border: 1px solid #ddd; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; margin-left: 8px; }
+  .kopyala-btn:hover { background: #e0e0e0; }
+</style>
+</head>
+<body>
+
+<div class="kart">
+  <h1>YouTube İçerik Analiz Aracı</h1>
+  <p class="alt">Kanalları takip et, videoları listele, transkript al, Claude ile analiz et</p>
+
+  <div class="sekme">
+    <button class="sekme-btn aktif" onclick="sekmeAc('video', this)">Tek Video</button>
+    <button class="sekme-btn" onclick="sekmeAc('kanal', this)">Kanal Videoları</button>
+    <button class="sekme-btn" onclick="sekmeAc('toplu', this)">Takip Listesi</button>
+  </div>
+
+  <!-- TEK VİDEO -->
+  <div id="panel-video" class="panel aktif">
+    <label>Video URL</label>
+    <input type="text" id="video-url" placeholder="https://www.youtube.com/watch?v=..." />
+
+    <div class="ipucu">
+      <div class="adim-satir"><span class="adim">1</span> Video URL'sini gir, "Transkripti Aç" butonuna bas</div>
+      <div class="adim-satir"><span class="adim">2</span> YouTube'da açılan videoda "..." → "Transkripti aç" tıkla</div>
+      <div class="adim-satir"><span class="adim">3</span> Transkripti seç, kopyala (Cmd+A, Cmd+C)</div>
+      <div class="adim-satir"><span class="adim">4</span> Aşağıya yapıştır, "Analiz Et" bas</div>
+    </div>
+
+    <button class="btn btn-mavi" onclick="transkriptAc()">1. Transkripti YouTube'da Aç</button>
+    <br><br>
+
+    <label>Transkripti buraya yapıştır</label>
+    <textarea id="video-transkript" placeholder="YouTube'dan kopyaladığın transkripti buraya yapıştır..."></textarea>
+
+    <button class="btn btn-yesil" onclick="videoAnaliz()">2. Analiz Et</button>
+    <div class="durum" id="video-durum"></div>
+    <div class="analiz-kutu" id="video-analiz"></div>
+  </div>
+
+  <!-- KANAL VİDEOLARI -->
+  <div id="panel-kanal" class="panel">
+    <label>Kanal URL</label>
+    <input type="text" id="kanal-url" placeholder="https://www.youtube.com/@kanaladi" />
+
+    <div style="display:flex; gap:8px; margin-bottom:16px;">
+      <select id="kanal-adet" style="width:auto; margin-bottom:0;">
+        <option value="10">Son 10</option>
+        <option value="20" selected>Son 20</option>
+        <option value="50">Son 50</option>
+      </select>
+      <button class="btn btn-mavi" onclick="kanalVideolari()">Videoları Listele</button>
+    </div>
+
+    <div class="durum" id="kanal-durum"></div>
+    <div id="video-listesi"></div>
+
+    <!-- Transkript yapıştır -->
+    <div id="kanal-analiz-bolum" style="display:none; margin-top:16px;">
+      <label id="secili-video-baslik" style="font-weight:600; color:#333;"></label>
+      <div class="ipucu" style="margin-top:8px;">
+        YouTube'da açtığın videonun transkriptini kopyalayıp aşağıya yapıştır.
+      </div>
+      <textarea id="kanal-transkript" placeholder="Transkripti buraya yapıştır..."></textarea>
+      <button class="btn btn-yesil" onclick="kanalVideoAnaliz()">Analiz Et</button>
+      <div class="durum" id="kanal-video-durum"></div>
+      <div class="analiz-kutu" id="kanal-video-analiz"></div>
+    </div>
+  </div>
+
+  <!-- TAKİP LİSTESİ -->
+  <div id="panel-toplu" class="panel">
+    <label>Takip ettiğin kanallar</label>
+    <div class="kanal-ekle">
+      <input type="text" id="yeni-kanal" placeholder="https://www.youtube.com/@kanaladi" onkeypress="if(event.key==='Enter') kanalEkle()" />
+      <button class="btn btn-mavi" onclick="kanalEkle()">Ekle</button>
+    </div>
+    <div class="kanal-listesi" id="kanal-listesi"></div>
+
+    <select id="toplu-adet" style="width:auto; margin-bottom:16px;">
+      <option value="5">Son 5 video</option>
+      <option value="10" selected>Son 10 video</option>
+      <option value="20">Son 20 video</option>
+    </select>
+
+    <button class="btn btn-mor" onclick="topluListele()">Tüm Kanalları Tara</button>
+    <div class="durum" id="toplu-durum"></div>
+    <div id="toplu-sonuc"></div>
+  </div>
+</div>
+
+<script>
+const YT_API = 'AIzaSyAQPmduXeMtPBKPuxKdNy2_ieP0FUiZvao'; // YouTube Data API
+let kanallar = JSON.parse(localStorage.getItem('yt-kanallar') || '[]');
+
+function sekmeAc(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('aktif'));
+  document.querySelectorAll('.sekme-btn').forEach(b => b.classList.remove('aktif'));
+  document.getElementById('panel-' + id).classList.add('aktif');
+  btn.classList.add('aktif');
+}
+
+function durum(id, msg, tip) {
+  const el = document.getElementById(id);
+  el.style.display = msg ? 'block' : 'none';
+  el.className = 'durum ' + (tip || 'bilgi');
+  el.textContent = msg;
+}
+
+function transkriptAc() {
+  const url = document.getElementById('video-url').value.trim();
+  if (!url) { alert('Önce video URL gir'); return; }
+  window.open(url, '_blank');
+}
+
+async function claudeAnaliz(transkript) {
+  const resp = await fetch('https://youtube-analiz.onrender.com/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ transcript: transkript })
+  });
+  const data = await resp.json();
+  return data.analiz || data.error || 'Analiz alınamadı';
+}
+
+async function videoAnaliz() {
+  const t = document.getElementById('video-transkript').value.trim();
+  if (!t) { alert('Transkripti yapıştır'); return; }
+  durum('video-durum', 'Analiz yapılıyor...', 'bilgi');
+  try {
+    const analiz = await claudeAnaliz(t);
+    document.getElementById('video-analiz').textContent = analiz;
+    document.getElementById('video-analiz').style.display = 'block';
+    durum('video-durum', '', '');
+  } catch(e) {
+    durum('video-durum', 'Hata: ' + e.message, 'hata');
+  }
+}
+
+async function kanalVideolari() {
+  const url = document.getElementById('kanal-url').value.trim();
+  const adet = document.getElementById('kanal-adet').value;
+  if (!url) return;
+
+  durum('kanal-durum', 'Videolar yükleniyor...', 'bilgi');
+  document.getElementById('video-listesi').innerHTML = '';
+  document.getElementById('kanal-analiz-bolum').style.display = 'none';
+
+  try {
+    const channelId = await kanalIdAl(url);
+    if (!channelId) { durum('kanal-durum', 'Kanal bulunamadı', 'hata'); return; }
+
+    const resp = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&maxResults=${adet}&order=date&key=${YT_API}`);
+    const data = await resp.json();
+    if (data.error) { durum('kanal-durum', 'API hatası: ' + data.error.message, 'hata'); return; }
+
+    const videolar = data.items || [];
+    const liste = document.getElementById('video-listesi');
+    liste.innerHTML = `<p style="font-size:13px; color:#555; margin-bottom:12px;">${videolar.length} video bulundu</p>`;
+
+    videolar.forEach(v => {
+      const videoUrl = `https://www.youtube.com/watch?v=${v.id.videoId}`;
+      const div = document.createElement('div');
+      div.className = 'video-item';
+      div.innerHTML = `
+        <div class="video-baslik">${v.snippet.title}</div>
+        <div class="video-alt">
+          <span class="video-tarih">${v.snippet.publishedAt?.substring(0,10) || ''}</span>
+          <button class="btn btn-mavi btn-kucuk" onclick="window.open('${videoUrl}', '_blank')">YouTube'da Aç</button>
+          <button class="btn btn-yesil btn-kucuk" onclick="transkriptGirisiGoster('${v.snippet.title.replace(/'/g, '')}', '${videoUrl}')">Transkript Gir & Analiz Et</button>
+        </div>
+      `;
+      liste.appendChild(div);
+    });
+
+    durum('kanal-durum', '', '');
+  } catch(e) {
+    durum('kanal-durum', 'Hata: ' + e.message, 'hata');
+  }
+}
+
+function transkriptGirisiGoster(baslik, url) {
+  document.getElementById('secili-video-baslik').textContent = baslik;
+  document.getElementById('kanal-transkript').value = '';
+  document.getElementById('kanal-video-analiz').style.display = 'none';
+  document.getElementById('kanal-analiz-bolum').style.display = 'block';
+  window.open(url, '_blank');
+  document.getElementById('kanal-analiz-bolum').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function kanalVideoAnaliz() {
+  const t = document.getElementById('kanal-transkript').value.trim();
+  if (!t) { alert('Transkripti yapıştır'); return; }
+  durum('kanal-video-durum', 'Analiz yapılıyor...', 'bilgi');
+  try {
+    const analiz = await claudeAnaliz(t);
+    document.getElementById('kanal-video-analiz').textContent = analiz;
+    document.getElementById('kanal-video-analiz').style.display = 'block';
+    durum('kanal-video-durum', '', '');
+  } catch(e) {
+    durum('kanal-video-durum', 'Hata: ' + e.message, 'hata');
+  }
+}
+
+async function kanalIdAl(url) {
+  const match = url.match(/@([^/?]+)/);
+  if (!match) return null;
+  const handle = match[1];
+  const resp = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${handle}&key=${YT_API}`);
+  const data = await resp.json();
+  return data.items?.[0]?.id || null;
+}
+
+function kanalEkle() {
+  const url = document.getElementById('yeni-kanal').value.trim();
+  if (!url || kanallar.includes(url)) return;
+  kanallar.push(url);
+  localStorage.setItem('yt-kanallar', JSON.stringify(kanallar));
+  kanalListesiGoster();
+  document.getElementById('yeni-kanal').value = '';
+}
+
+function kanalSil(url) {
+  kanallar = kanallar.filter(k => k !== url);
+  localStorage.setItem('yt-kanallar', JSON.stringify(kanallar));
+  kanalListesiGoster();
+}
+
+function kanalListesiGoster() {
+  const liste = document.getElementById('kanal-listesi');
+  if (!kanallar.length) { liste.innerHTML = '<p style="font-size:13px; color:#888;">Henüz kanal eklenmedi</p>'; return; }
+  liste.innerHTML = kanallar.map(k => `
+    <span class="kanal-tag">${k.replace('https://www.youtube.com/', '')} <span class="kanal-sil" onclick="kanalSil('${k}')">×</span></span>
+  `).join('');
+}
+
+async function topluListele() {
+  if (!kanallar.length) { durum('toplu-durum', 'Önce kanal ekle', 'hata'); return; }
+  const adet = parseInt(document.getElementById('toplu-adet').value);
+  const sonuc = document.getElementById('toplu-sonuc');
+  sonuc.innerHTML = '';
+  durum('toplu-durum', 'Kanallar taranıyor...', 'bilgi');
+
+  for (let i = 0; i < kanallar.length; i++) {
+    const kanal = kanallar[i];
+    durum('toplu-durum', `${i+1}/${kanallar.length} taranıyor...`, 'bilgi');
+    try {
+      const channelId = await kanalIdAl(kanal);
+      if (!channelId) continue;
+      const resp = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&maxResults=${adet}&order=date&key=${YT_API}`);
+      const data = await resp.json();
+      if (!data.items?.length) continue;
+
+      const kanalDiv = document.createElement('div');
+      kanalDiv.className = 'kart';
+      kanalDiv.innerHTML = `<p style="font-size:14px; font-weight:600; color:#333; margin-bottom:12px;">${kanal.replace('https://www.youtube.com/', '')}</p>`;
+
+      data.items.forEach(v => {
+        const videoUrl = `https://www.youtube.com/watch?v=${v.id.videoId}`;
+        const vDiv = document.createElement('div');
+        vDiv.className = 'video-item';
+        vDiv.innerHTML = `
+          <div class="video-baslik">${v.snippet.title}</div>
+          <div class="video-alt">
+            <span class="video-tarih">${v.snippet.publishedAt?.substring(0,10) || ''}</span>
+            <button class="btn btn-mavi btn-kucuk" onclick="window.open('${videoUrl}', '_blank')">Aç</button>
+            <button class="btn btn-yesil btn-kucuk" onclick="transkriptGirisiGoster('${v.snippet.title.replace(/'/g, '')}', '${videoUrl}'); sekmeAc('kanal', document.querySelectorAll('.sekme-btn')[1])">Analiz Et</button>
+          </div>
+        `;
+        kanalDiv.appendChild(vDiv);
+      });
+      sonuc.appendChild(kanalDiv);
+    } catch(e) {}
+  }
+  durum('toplu-durum', 'Tamamlandı!', 'basari');
+}
+
+kanalListesiGoster();
+</script>
+</body>
+</html>
