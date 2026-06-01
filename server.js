@@ -1,77 +1,39 @@
 const express = require('express');
 const cors = require('cors');
-const { exec, execSync } = require('child_process');
-const fs = require('fs');
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
-function kurArac() {
+app.post('/analyze', async (req, res) => {
+  const { transcript } = req.body;
+  if (!transcript) return res.status(400).json({ error: 'Transkript gerekli' });
+
   try {
-    execSync('pip3 install youtube-transcript-api --break-system-packages -q');
-  } catch(e) {}
-}
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: 'Sen Türkçe YouTube içerik üreticisine danışmanlık yapan editörsün. Verilen transkripti analiz et:\n\n1. Ana tema ve argüman\n2. Dil ve anlatım tarzı\n3. Medeniyetsel eleştiri veya sistem analizi açısından değer\n4. Senin içeriklerine kullanılabilecek bilgi veya bakış açısı\n5. Önerilen bir içerik açısı\n\nTürkçe yaz, kısa ve pratik ol.',
+        messages: [{ role: 'user', content: `Transkript:\n\n${transcript.substring(0, 6000)}` }]
+      })
+    });
 
-try { kurArac(); } catch(e) {}
-
-app.get('/transcript', (req, res) => {
-  const url = req.query.url;
-  if (!url) return res.status(400).json({ error: 'URL gerekli' });
-  
-  const videoId = url.match(/[?&]v=([^&]+)/)?.[1] || url.split('/').pop();
-  if (!videoId) return res.status(400).json({ error: 'Video ID bulunamadı' });
-  
-  const script = `
-import json, sys
-try:
-    from youtube_transcript_api import YouTubeTranscriptApi
-    api = YouTubeTranscriptApi()
-    t = api.fetch('${videoId}')
-    print(json.dumps({'transcript': ' '.join([x.text for x in t]), 'videoId': '${videoId}'}))
-except Exception as e:
-    print(json.dumps({'error': str(e)}))
-`;
-  
-  const tmpFile = `/tmp/script_${Date.now()}.py`;
-  fs.writeFileSync(tmpFile, script);
-  
-  exec(`python3 ${tmpFile}`, (err, stdout) => {
-    fs.unlinkSync(tmpFile);
-    try {
-      res.json(JSON.parse(stdout));
-    } catch(e) {
-      res.status(500).json({ error: 'Parse hatası', detail: stdout });
-    }
-  });
-});
-
-app.get('/channel-videos', (req, res) => {
-  const channelUrl = req.query.url;
-  if (!channelUrl) return res.status(400).json({ error: 'Kanal URL gerekli' });
-  
-  const script = `
-import json
-try:
-    from youtube_transcript_api import YouTubeTranscriptApi
-    print(json.dumps({'error': 'Kanal listesi için yt-dlp gerekli'}))
-except Exception as e:
-    print(json.dumps({'error': str(e)}))
-`;
-  res.json({ videos: [], error: 'Kanal listesi yakında' });
-});
-
-app.get('/health', (req, res) => {
-  try {
-    execSync('python3 -c "import youtube_transcript_api"');
-    res.json({ status: 'ok', api: true });
-  } catch(e) {
-    res.json({ status: 'ok', api: false });
+    const data = await response.json();
+    const text = (data.content || []).map(b => b.text || '').join('');
+    res.json({ analiz: text });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
 
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server on port ${PORT}`);
-  kurArac();
-});
+app.listen(PORT, () => console.log(`Server on port ${PORT}`));
