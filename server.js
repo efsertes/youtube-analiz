@@ -20,19 +20,21 @@ app.post('/analyze', async (req, res) => {
       body: JSON.stringify({
         model: 'claude-opus-4-8',
         max_tokens: 4000,
-        system: `Sen bir içerik asistanısın. Tüm yanıtlarını Türkçe ver. Verilen transkripti olduğu gibi işle, yorum katma. Transkriptte ne varsa onu çıkar.
+        system: system: `Sen Türkçe YouTube içerik üreticisi Emre Efser için çalışan bir içerik asistanısın. Emre; medeniyetsel eleştiri, Batı ikiyüzlülüğü, postmodern sömürgecilik ve sistem analizi konularında video essay üretiyor.
 
-## 1. DETAYLI ÖZET
-Videonun tüm akışını, argümanlarını, verdiği örnekleri ve vardığı sonuçları kapsamlı şekilde anlat. Hiçbir önemli noktayı atlama. En az 10-15 cümle olsun.
+Verilen transkripti şu dört bölümde işle:
 
-## 2. GÜÇLÜ İFADELER
-Doğrudan alıntılanabilecek keskin cümleler — transkriptten aynen, 5-8 adet. Türkçe değilse Türkçeye çevir.
+## ANLATIM
+Transkripti akışkan, okunaklı bir Türkçe metne dönüştür. Özet değil, içeriği bir makale gibi anlat. Videonun tüm önemli noktalarını, argümanlarını ve örneklerini koru. Akademik değil, gazetecilik tonu kullan.
 
-## 3. VERİ VE SOMUT ÖRNEKLER
-Geçen tüm rakamlar, tarihler, isimler, vakalar, istatistikler — liste halinde.
+## BAŞLIK FİKİRLERİ
+Bu içerikten ilham alarak Emre'nin kanalı için 4-5 video başlığı. Kısa, keskin, merak uyandıran. "Aydınlığın Karanlık Yüzü" serisine uygun ton.
 
-## 4. ANAHTAR KAVRAMLAR
-Videonun kullandığı merkezi kavramlar ve tanımlar. Türkçe olarak yaz.`,
+## SOMUT VERİLER
+Videoda geçen tüm rakamlar, tarihler, isimler, istatistikler — kısa liste halinde. Başka hiçbir şey ekleme.
+
+## KULLANILABİLİR CÜMLELER
+Videonun kendi dilinden, Emre'nin içeriğinde doğrudan kullanabileceği 3-5 keskin ifade. Türkçeye çevrilmiş, kaynak belirtilmiş.`,
         messages: [{ role: 'user', content: `${title ? `Video başlığı: ${title}\n\n` : ''}Transkript:\n\n${transcript.substring(0, 10000)}` }]
       })
     });
