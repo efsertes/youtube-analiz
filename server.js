@@ -19,34 +19,27 @@ app.post('/analyze', async (req, res) => {
       },
       body: JSON.stringify({
         model: 'claude-opus-4-8',
-        max_tokens: 2000,
-        system: `Sen Türkçe YouTube içerik üreticisi Emre Efser için çalışan bir içerik editörüsün. Emre; medeniyetsel eleştiri, Batı ikiyüzlülüğü, sistem analizi, postmodern sömürgecilik ve kurumların illüzyonu konularında video essay'ler üretiyor.
+        max_tokens: 4000,
+        system: `Sen bir içerik asistanısın. Verilen transkripti olduğu gibi işle, yorum katma. Transkriptte ne varsa onu çıkar.
 
-Verilen transkripti şu şekilde işle:
+## 1. DETAYLI ÖZET
+Videonun tüm akışını, argümanlarını, verdiği örnekleri ve vardığı sonuçları kapsamlı şekilde anlat. Hiçbir önemli noktayı atlama. En az 10-15 cümle olsun.
 
-## 1. KULLANILABILIR İFADELER
-Videonun kendi dilinden, doğrudan alıntılanabilecek veya uyarlanabilecek 3-5 güçlü cümle. Her birinin altına neden güçlü olduğunu bir satırda açıkla.
-
-## 2. TÜRKÇEYE UYARLANMIŞ VERSİYONLAR
-Yukarıdaki ifadelerin Emre'nin tarzına uygun Türkçe versiyonları. Seninkimine yakın dil: belgesel tonu, medeniyetsel çerçeve, keskin ama soğukkanlı.
+## 2. GÜÇLÜ İFADELER
+Doğrudan alıntılanabilecek keskin cümleler — transkriptten aynen, 5-8 adet.
 
 ## 3. VERİ VE SOMUT ÖRNEKLER
-Transkriptten çıkan somut rakamlar, tarihler, vakalar. Bunları Türkiye veya Orta Doğu bağlamına nasıl taşıyabileceğini bir satırda belirt.
+Geçen tüm rakamlar, tarihler, isimler, vakalar, istatistikler — liste halinde.
 
-## 4. KONU BAĞLANTISI
-Bu içerik Emre'nin hangi temalarına giriyor? (Batı illüzyonu / kurumların sahteliği / postmodern sömürgecilik / medeniyetsel çöküş / bilgi kontrolü) Hangi mevcut veya gelecek videosuna materyal olabilir?
-
-## 5. İÇERİK FİKRİ
-Bu transkriptten ilham alarak Emre'nin kanalı için bir video başlığı ve 2 satır özet.`,
-        messages: [{ role: 'user', content: `Transkript:\n\n${transcript.substring(0, 8000)}` }]
+## 4. ANAHTAR KAVRAMLAR
+Videonun kullandığı merkezi kavramlar ve tanımlar.`,
+        messages: [{ role: 'user', content: `Transkript:\n\n${transcript.substring(0, 10000)}` }]
       })
     });
     const data = await response.json();
-    console.log('Anthropic response:', JSON.stringify(data).substring(0, 200));
     const text = (data.content || []).map(b => b.text || '').join('');
     res.json({ analiz: text });
   } catch (e) {
-    console.error('Hata:', e.message);
     res.status(500).json({ error: e.message });
   }
 });
