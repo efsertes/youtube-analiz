@@ -116,7 +116,30 @@
   </div>
 
   <!-- TAKİP LİSTESİ -->
-  <div id="panel-toplu" class="panel">
+  <div id="panel-toplu" class="panel"><div id="panel-haber" class="panel">
+  <label>Haber Kaynağı RSS URL</label>
+  <div class="kanal-ekle">
+    <input type="text" id="rss-url" placeholder="https://feeds.reuters.com/reuters/topNews" />
+    <button class="btn btn-mavi" onclick="haberleriGetir()">Getir</button>
+  </div>
+
+  <div class="kanal-listesi" id="rss-kanal-listesi"></div>
+
+  <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://feeds.reuters.com/reuters/topNews', 'Reuters')">+ Reuters</button>
+    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://rss.cnn.com/rss/edition.rss', 'CNN')">+ CNN</button>
+    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://feeds.bbci.co.uk/news/world/rss.xml', 'BBC')">+ BBC</button>
+    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://www.aljazeera.com/xml/rss/all.xml', 'Al Jazeera')">+ Al Jazeera</button>
+    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://theintercept.com/feed/?rss', 'The Intercept')">+ The Intercept</button>
+    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://www.mintpressnews.com/feed/', 'MintPress')">+ MintPress</button>
+    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://thegrayzone.com/feed/', 'Grayzone')">+ Grayzone</button>
+    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://www.middleeasteye.net/rss', 'Middle East Eye')">+ MEE</button>
+  </div>
+
+  <button class="btn btn-mor" onclick="tumHaberleriGetir()">Tüm Kaynakları Tara</button>
+  <div class="durum" id="haber-durum"></div>
+  <div id="haber-listesi"></div>
+</div>
     <label>Takip ettiğin kanallar</label>
     <div class="kanal-ekle">
       <input type="text" id="yeni-kanal" placeholder="https://www.youtube.com/@kanaladi" onkeypress="if(event.key==='Enter') kanalEkle()" />
