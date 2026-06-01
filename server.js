@@ -18,16 +18,18 @@ app.post('/analyze', async (req, res) => {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-opus-4-8',
         max_tokens: 1000,
         system: 'Sen Türkçe YouTube içerik üreticisine danışmanlık yapan editörsün. Verilen transkripti analiz et:\n\n1. Ana tema ve argüman\n2. Dil ve anlatım tarzı\n3. Medeniyetsel eleştiri veya sistem analizi açısından değer\n4. Senin içeriklerine kullanılabilecek bilgi veya bakış açısı\n5. Önerilen bir içerik açısı\n\nTürkçe yaz, kısa ve pratik ol.',
         messages: [{ role: 'user', content: `Transkript:\n\n${transcript.substring(0, 6000)}` }]
       })
     });
     const data = await response.json();
+    console.log('Anthropic response:', JSON.stringify(data).substring(0, 200));
     const text = (data.content || []).map(b => b.text || '').join('');
     res.json({ analiz: text });
   } catch (e) {
+    console.error('Hata:', e.message);
     res.status(500).json({ error: e.message });
   }
 });
