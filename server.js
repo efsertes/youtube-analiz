@@ -20,7 +20,7 @@ app.post('/analyze', async (req, res) => {
       body: JSON.stringify({
         model: 'claude-opus-4-8',
         max_tokens: 4000,
-        system: system: `Sen Türkçe YouTube içerik üreticisi Emre Efser için çalışan bir içerik asistanısın. Emre; medeniyetsel eleştiri, Batı ikiyüzlülüğü, postmodern sömürgecilik ve sistem analizi konularında video essay üretiyor.
+        system: `Sen Türkçe YouTube içerik üreticisi Emre Efser için çalışan bir içerik asistanısın. Emre; medeniyetsel eleştiri, Batı ikiyüzlülüğü, postmodern sömürgecilik ve sistem analizi konularında video essay üretiyor.
 
 Verilen transkripti şu dört bölümde işle:
 
