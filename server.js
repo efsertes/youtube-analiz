@@ -11,9 +11,9 @@ try {
   execSync('which yt-dlp');
 } catch(e) {
   try {
-    execSync('pip install yt-dlp', { stdio: 'inherit' });
+   execSync('pip install yt-dlp --break-system-packages', { stdio: 'inherit' });
   } catch(e2) {
-    execSync('pip3 install yt-dlp', { stdio: 'inherit' });
+   execSync('pip3 install yt-dlp --break-system-packages', { stdio: 'inherit' });
   }
 }
 
