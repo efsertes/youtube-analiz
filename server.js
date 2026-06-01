@@ -4,11 +4,11 @@ const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+app.use(express.static('.'));
 
 app.post('/analyze', async (req, res) => {
   const { transcript } = req.body;
   if (!transcript) return res.status(400).json({ error: 'Transkript gerekli' });
-
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -24,7 +24,6 @@ app.post('/analyze', async (req, res) => {
         messages: [{ role: 'user', content: `Transkript:\n\n${transcript.substring(0, 6000)}` }]
       })
     });
-
     const data = await response.json();
     const text = (data.content || []).map(b => b.text || '').join('');
     res.json({ analiz: text });
