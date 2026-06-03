@@ -26,14 +26,13 @@
   .hata { color: #cc0000; }
   .bilgi { color: #555; }
   .basari { color: #28a745; }
-  .sekme { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid #e5e5e5; padding-bottom: 12px; }
+  .sekme { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid #e5e5e5; padding-bottom: 12px; flex-wrap: wrap; }
   .sekme-btn { padding: 8px 16px; border: 1px solid #ddd; background: white; border-radius: 8px; cursor: pointer; font-size: 14px; }
   .sekme-btn.aktif { background: #0066cc; color: white; border-color: #0066cc; }
   .panel { display: none; }
   .panel.aktif { display: block; }
   .analiz-kutu { background: #f0f7ff; border: 1px solid #c0d8f0; border-radius: 10px; padding: 20px; white-space: pre-wrap; font-size: 14px; line-height: 1.75; margin-top: 16px; display: none; }
   .ipucu { background: #fff8e1; border: 1px solid #ffc107; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #555; margin-bottom: 16px; line-height: 1.6; }
-  .ipucu strong { color: #333; }
   .video-item { background: #fafafa; border: 1px solid #e5e5e5; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; }
   .video-baslik { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
   .video-alt { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
@@ -45,8 +44,12 @@
   .kanal-listesi { margin-bottom: 16px; min-height: 32px; }
   .adim { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #0066cc; color: white; border-radius: 50%; font-size: 12px; font-weight: 600; margin-right: 6px; flex-shrink: 0; }
   .adim-satir { display: flex; align-items: flex-start; margin-bottom: 8px; font-size: 13px; color: #444; }
-  .kopyala-btn { background: #f0f0f0; border: 1px solid #ddd; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; margin-left: 8px; }
-  .kopyala-btn:hover { background: #e0e0e0; }
+  .haber-item { background: #fafafa; border: 1px solid #e5e5e5; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; }
+  .haber-baslik { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+  .haber-meta { font-size: 12px; color: #888; margin-bottom: 8px; }
+  .haber-desc { font-size: 13px; color: #555; margin-bottom: 8px; line-height: 1.5; }
+  .haber-analiz-kutu { background: #f0f7ff; border: 1px solid #c0d8f0; border-radius: 8px; padding: 14px; white-space: pre-wrap; font-size: 13px; line-height: 1.7; margin-top: 8px; display: none; }
+  .kaynak-tag { display: inline-block; background: #e8f0fe; color: #1a56db; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-right: 6px; }
 </style>
 </head>
 <body>
@@ -59,27 +62,23 @@
     <button class="sekme-btn aktif" onclick="sekmeAc('video', this)">Tek Video</button>
     <button class="sekme-btn" onclick="sekmeAc('kanal', this)">Kanal Videoları</button>
     <button class="sekme-btn" onclick="sekmeAc('toplu', this)">Takip Listesi</button>
-   <button class="sekme-btn" onclick="sekmeAc('haber', this)">Haber Takibi</button>
+    <button class="sekme-btn" onclick="sekmeAc('haber', this)">Haber Takibi</button>
   </div>
 
   <!-- TEK VİDEO -->
   <div id="panel-video" class="panel aktif">
     <label>Video URL</label>
     <input type="text" id="video-url" placeholder="https://www.youtube.com/watch?v=..." />
-
     <div class="ipucu">
       <div class="adim-satir"><span class="adim">1</span> Video URL'sini gir, "Transkripti Aç" butonuna bas</div>
       <div class="adim-satir"><span class="adim">2</span> YouTube'da açılan videoda "..." → "Transkripti aç" tıkla</div>
       <div class="adim-satir"><span class="adim">3</span> Transkripti seç, kopyala (Cmd+A, Cmd+C)</div>
       <div class="adim-satir"><span class="adim">4</span> Aşağıya yapıştır, "Analiz Et" bas</div>
     </div>
-
     <button class="btn btn-mavi" onclick="transkriptAc()">1. Transkripti YouTube'da Aç</button>
     <br><br>
-
     <label>Transkripti buraya yapıştır</label>
     <textarea id="video-transkript" placeholder="YouTube'dan kopyaladığın transkripti buraya yapıştır..."></textarea>
-
     <button class="btn btn-yesil" onclick="videoAnaliz()">2. Analiz Et</button>
     <div class="durum" id="video-durum"></div>
     <div class="analiz-kutu" id="video-analiz"></div>
@@ -89,7 +88,6 @@
   <div id="panel-kanal" class="panel">
     <label>Kanal URL</label>
     <input type="text" id="kanal-url" placeholder="https://www.youtube.com/@kanaladi" />
-
     <div style="display:flex; gap:8px; margin-bottom:16px;">
       <select id="kanal-adet" style="width:auto; margin-bottom:0;">
         <option value="10">Son 10</option>
@@ -98,16 +96,11 @@
       </select>
       <button class="btn btn-mavi" onclick="kanalVideolari()">Videoları Listele</button>
     </div>
-
     <div class="durum" id="kanal-durum"></div>
     <div id="video-listesi"></div>
-
-    <!-- Transkript yapıştır -->
     <div id="kanal-analiz-bolum" style="display:none; margin-top:16px;">
       <label id="secili-video-baslik" style="font-weight:600; color:#333;"></label>
-      <div class="ipucu" style="margin-top:8px;">
-        YouTube'da açtığın videonun transkriptini kopyalayıp aşağıya yapıştır.
-      </div>
+      <div class="ipucu" style="margin-top:8px;">YouTube'da açtığın videonun transkriptini kopyalayıp aşağıya yapıştır.</div>
       <textarea id="kanal-transkript" placeholder="Transkripti buraya yapıştır..."></textarea>
       <button class="btn btn-yesil" onclick="kanalVideoAnaliz()">Analiz Et</button>
       <div class="durum" id="kanal-video-durum"></div>
@@ -116,52 +109,54 @@
   </div>
 
   <!-- TAKİP LİSTESİ -->
-  <div id="panel-toplu" class="panel"><div id="panel-haber" class="panel">
-  <label>Haber Kaynağı RSS URL</label>
-  <div class="kanal-ekle">
-    <input type="text" id="rss-url" placeholder="https://feeds.reuters.com/reuters/topNews" />
-    <button class="btn btn-mavi" onclick="haberleriGetir()">Getir</button>
-  </div>
-
-  <div class="kanal-listesi" id="rss-kanal-listesi"></div>
-
-  <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
-    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://feeds.reuters.com/reuters/topNews', 'Reuters')">+ Reuters</button>
-    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://rss.cnn.com/rss/edition.rss', 'CNN')">+ CNN</button>
-    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://feeds.bbci.co.uk/news/world/rss.xml', 'BBC')">+ BBC</button>
-    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://www.aljazeera.com/xml/rss/all.xml', 'Al Jazeera')">+ Al Jazeera</button>
-    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://theintercept.com/feed/?rss', 'The Intercept')">+ The Intercept</button>
-    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://www.mintpressnews.com/feed/', 'MintPress')">+ MintPress</button>
-    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://thegrayzone.com/feed/', 'Grayzone')">+ Grayzone</button>
-    <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://www.middleeasteye.net/rss', 'Middle East Eye')">+ MEE</button>
-  </div>
-
-  <button class="btn btn-mor" onclick="tumHaberleriGetir()">Tüm Kaynakları Tara</button>
-  <div class="durum" id="haber-durum"></div>
-  <div id="haber-listesi"></div>
-</div>
+  <div id="panel-toplu" class="panel">
     <label>Takip ettiğin kanallar</label>
     <div class="kanal-ekle">
       <input type="text" id="yeni-kanal" placeholder="https://www.youtube.com/@kanaladi" onkeypress="if(event.key==='Enter') kanalEkle()" />
       <button class="btn btn-mavi" onclick="kanalEkle()">Ekle</button>
     </div>
     <div class="kanal-listesi" id="kanal-listesi"></div>
-
     <select id="toplu-adet" style="width:auto; margin-bottom:16px;">
       <option value="5">Son 5 video</option>
       <option value="10" selected>Son 10 video</option>
       <option value="20">Son 20 video</option>
     </select>
-
     <button class="btn btn-mor" onclick="topluListele()">Tüm Kanalları Tara</button>
     <div class="durum" id="toplu-durum"></div>
     <div id="toplu-sonuc"></div>
   </div>
+
+  <!-- HABER TAKİBİ -->
+  <div id="panel-haber" class="panel">
+    <label>Haber Kaynağı RSS URL</label>
+    <div class="kanal-ekle">
+      <input type="text" id="rss-url" placeholder="https://feeds.reuters.com/reuters/topNews" />
+      <button class="btn btn-mavi" onclick="haberleriGetir()">Getir</button>
+    </div>
+    <div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">
+      <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://feeds.reuters.com/reuters/topNews', 'Reuters')">+ Reuters</button>
+      <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://rss.cnn.com/rss/edition.rss', 'CNN')">+ CNN</button>
+      <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://feeds.bbci.co.uk/news/world/rss.xml', 'BBC')">+ BBC</button>
+      <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://www.aljazeera.com/xml/rss/all.xml', 'Al Jazeera')">+ Al Jazeera</button>
+      <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://theintercept.com/feed/?rss', 'The Intercept')">+ The Intercept</button>
+      <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://www.mintpressnews.com/feed/', 'MintPress')">+ MintPress</button>
+      <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://thegrayzone.com/feed/', 'Grayzone')">+ Grayzone</button>
+      <button class="btn btn-kucuk btn-mavi" onclick="rssEkleHazir('https://www.middleeasteye.net/rss', 'Middle East Eye')">+ MEE</button>
+    </div>
+    <div class="kanal-listesi" id="rss-kanal-listesi"></div>
+    <button class="btn btn-mor" onclick="tumHaberleriGetir()">Tüm Kaynakları Tara</button>
+    <div class="durum" id="haber-durum"></div>
+    <div id="haber-listesi"></div>
+  </div>
+
 </div>
 
 <script>
-const YT_API = 'AIzaSyAQPmduXeMtPBKPuxKdNy2_ieP0FUiZvao'; // YouTube Data API
+const SUNUCU = 'https://youtube-analiz.onrender.com';
+const YT_API = 'AIzaSyAQPmduXeMtPBKPuxKdNy2_ieP0FUiZvao';
+
 let kanallar = JSON.parse(localStorage.getItem('yt-kanallar') || '[]');
+let rssKaynaklar = JSON.parse(localStorage.getItem('rss-kaynaklar') || '[]');
 
 function sekmeAc(id, btn) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('aktif'));
@@ -184,7 +179,7 @@ function transkriptAc() {
 }
 
 async function claudeAnaliz(transkript) {
-  const resp = await fetch('https://youtube-analiz.onrender.com/analyze', {
+  const resp = await fetch(SUNUCU + '/analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ transcript: transkript })
@@ -211,23 +206,18 @@ async function kanalVideolari() {
   const url = document.getElementById('kanal-url').value.trim();
   const adet = document.getElementById('kanal-adet').value;
   if (!url) return;
-
   durum('kanal-durum', 'Videolar yükleniyor...', 'bilgi');
   document.getElementById('video-listesi').innerHTML = '';
   document.getElementById('kanal-analiz-bolum').style.display = 'none';
-
   try {
     const channelId = await kanalIdAl(url);
     if (!channelId) { durum('kanal-durum', 'Kanal bulunamadı', 'hata'); return; }
-
     const resp = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&maxResults=${adet}&order=date&key=${YT_API}`);
     const data = await resp.json();
     if (data.error) { durum('kanal-durum', 'API hatası: ' + data.error.message, 'hata'); return; }
-
     const videolar = data.items || [];
     const liste = document.getElementById('video-listesi');
     liste.innerHTML = `<p style="font-size:13px; color:#555; margin-bottom:12px;">${videolar.length} video bulundu</p>`;
-
     videolar.forEach(v => {
       const videoUrl = `https://www.youtube.com/watch?v=${v.id.videoId}`;
       const div = document.createElement('div');
@@ -242,7 +232,6 @@ async function kanalVideolari() {
       `;
       liste.appendChild(div);
     });
-
     durum('kanal-durum', '', '');
   } catch(e) {
     durum('kanal-durum', 'Hata: ' + e.message, 'hata');
@@ -303,25 +292,13 @@ function kanalListesiGoster() {
     <span class="kanal-tag">${k.replace('https://www.youtube.com/', '')} <span class="kanal-sil" onclick="kanalSil('${k}')">×</span></span>
   `).join('');
 }
-async function baslikCevir(baslik) {
-  try {
-    const resp = await fetch('https://youtube-analiz.onrender.com/translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: baslik })
-    });
-    const data = await resp.json();
-    return data.translated || baslik;
-  } catch(e) { return baslik; }
-}
- 
+
 async function topluListele() {
   if (!kanallar.length) { durum('toplu-durum', 'Önce kanal ekle', 'hata'); return; }
   const adet = parseInt(document.getElementById('toplu-adet').value);
   const sonuc = document.getElementById('toplu-sonuc');
   sonuc.innerHTML = '';
   durum('toplu-durum', 'Kanallar taranıyor...', 'bilgi');
-
   for (let i = 0; i < kanallar.length; i++) {
     const kanal = kanallar[i];
     durum('toplu-durum', `${i+1}/${kanallar.length} taranıyor...`, 'bilgi');
@@ -331,11 +308,9 @@ async function topluListele() {
       const resp = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&maxResults=${adet}&order=date&key=${YT_API}`);
       const data = await resp.json();
       if (!data.items?.length) continue;
-
       const kanalDiv = document.createElement('div');
       kanalDiv.className = 'kart';
       kanalDiv.innerHTML = `<p style="font-size:14px; font-weight:600; color:#333; margin-bottom:12px;">${kanal.replace('https://www.youtube.com/', '')}</p>`;
-
       data.items.forEach(v => {
         const videoUrl = `https://www.youtube.com/watch?v=${v.id.videoId}`;
         const vDiv = document.createElement('div');
@@ -356,7 +331,119 @@ async function topluListele() {
   durum('toplu-durum', 'Tamamlandı!', 'basari');
 }
 
+function rssKaynakListesiGoster() {
+  const liste = document.getElementById('rss-kanal-listesi');
+  if (!rssKaynaklar.length) { liste.innerHTML = ''; return; }
+  liste.innerHTML = rssKaynaklar.map(k => `
+    <span class="kanal-tag">${k.ad} <span class="kanal-sil" onclick="rssKaynakSil('${k.url}')">×</span></span>
+  `).join('');
+}
+
+function rssEkleHazir(url, ad) {
+  if (rssKaynaklar.find(k => k.url === url)) return;
+  rssKaynaklar.push({ url, ad });
+  localStorage.setItem('rss-kaynaklar', JSON.stringify(rssKaynaklar));
+  rssKaynakListesiGoster();
+}
+
+function rssKaynakSil(url) {
+  rssKaynaklar = rssKaynaklar.filter(k => k.url !== url);
+  localStorage.setItem('rss-kaynaklar', JSON.stringify(rssKaynaklar));
+  rssKaynakListesiGoster();
+}
+
+async function haberleriGetir() {
+  const url = document.getElementById('rss-url').value.trim();
+  if (!url) { alert('RSS URL gir'); return; }
+  durum('haber-durum', 'Haberler yükleniyor...', 'bilgi');
+  document.getElementById('haber-listesi').innerHTML = '';
+  try {
+    const resp = await fetch(`${SUNUCU}/rss?url=${encodeURIComponent(url)}`);
+    const data = await resp.json();
+    if (data.error) { durum('haber-durum', 'Hata: ' + data.error, 'hata'); return; }
+    haberListesiGoster(data.items || [], null, null, true);
+    durum('haber-durum', '', '');
+  } catch(e) {
+    durum('haber-durum', 'Hata: ' + e.message, 'hata');
+  }
+}
+
+async function tumHaberleriGetir() {
+  if (!rssKaynaklar.length) { durum('haber-durum', 'Önce kaynak ekle', 'hata'); return; }
+  const liste = document.getElementById('haber-listesi');
+  liste.innerHTML = '';
+  durum('haber-durum', 'Kaynaklar taranıyor...', 'bilgi');
+  for (let i = 0; i < rssKaynaklar.length; i++) {
+    const kaynak = rssKaynaklar[i];
+    durum('haber-durum', `${i+1}/${rssKaynaklar.length} — ${kaynak.ad} taranıyor...`, 'bilgi');
+    try {
+      const resp = await fetch(`${SUNUCU}/rss?url=${encodeURIComponent(kaynak.url)}`);
+      const data = await resp.json();
+      if (data.items?.length) {
+        const baslik = document.createElement('p');
+        baslik.style.cssText = 'font-size:14px; font-weight:600; color:#333; margin:16px 0 8px;';
+        baslik.textContent = kaynak.ad;
+        liste.appendChild(baslik);
+        haberListesiGoster(data.items, kaynak.url, kaynak.ad, false);
+      }
+    } catch(e) {}
+  }
+  durum('haber-durum', 'Tamamlandı!', 'basari');
+}
+
+function haberListesiGoster(haberler, kaynak, kaynakAd, temizle) {
+  const liste = document.getElementById('haber-listesi');
+  if (temizle) liste.innerHTML = '';
+  haberler.forEach((h, idx) => {
+    const analizId = `ha-${Date.now()}-${idx}`;
+    const durumId = `hd-${Date.now()}-${idx}`;
+    const div = document.createElement('div');
+    div.className = 'haber-item';
+    const linkBtn = h.link ? `<button class="btn btn-mavi btn-kucuk" onclick="window.open('${h.link}', '_blank')">Haberi Aç</button>` : '';
+    div.innerHTML = `
+      <div class="haber-baslik">${h.title}</div>
+      <div class="haber-meta">
+        ${kaynakAd ? `<span class="kaynak-tag">${kaynakAd}</span>` : ''}
+        ${h.pubDate ? new Date(h.pubDate).toLocaleDateString('tr-TR') : ''}
+      </div>
+      ${h.description ? `<div class="haber-desc">${h.description}</div>` : ''}
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        ${linkBtn}
+        <button class="btn btn-yesil btn-kucuk" onclick="haberAnaliz(this, '${h.title.replace(/'/g, '').replace(/"/g, '')}', '${(h.description||'').replace(/'/g, '').replace(/"/g, '')}', '${(h.link||'').replace(/'/g, '')}', '${analizId}', '${durumId}')">Claude ile Analiz Et</button>
+      </div>
+      <div class="durum" id="${durumId}"></div>
+      <div class="haber-analiz-kutu" id="${analizId}"></div>
+    `;
+    liste.appendChild(div);
+  });
+}
+
+async function haberAnaliz(btn, baslik, aciklama, link, analizId, durumId) {
+  btn.disabled = true;
+  const durumEl = document.getElementById(durumId);
+  const analizEl = document.getElementById(analizId);
+  durumEl.style.display = 'block';
+  durumEl.className = 'durum bilgi';
+  durumEl.textContent = 'Analiz yapılıyor...';
+  try {
+    const resp = await fetch(`${SUNUCU}/analyze-news`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: baslik, description: aciklama, url: link })
+    });
+    const data = await resp.json();
+    analizEl.textContent = data.analiz || data.error || 'Analiz alınamadı';
+    analizEl.style.display = 'block';
+    durumEl.style.display = 'none';
+  } catch(e) {
+    durumEl.className = 'durum hata';
+    durumEl.textContent = 'Hata: ' + e.message;
+  }
+  btn.disabled = false;
+}
+
 kanalListesiGoster();
+rssKaynakListesiGoster();
 </script>
 </body>
 </html>
